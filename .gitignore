@@ -1,0 +1,15 @@
+# Ignore all files and folders by default
+*
+
+# Allow Git to look inside directories
+!*/
+
+# Track only specific file extensions (.png, .ino and .md)
+!*.png
+!*.ino
+!*.md
+
+# Do not ignore Git's own configuration and the license file
+!.gitignore
+!LICENSE*
+
