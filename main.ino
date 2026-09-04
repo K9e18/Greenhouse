@@ -1,37 +1,24 @@
-#include <LiquidCrystal_I2C.h>
+#include <Arduino.h>
 #include <Wire.h>
-#include <RTClib.h>
 #include <LiquidCrystal_I2C.h>
+#include <RTClib.h>
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
+RTC_DS1307 rtc; 
+DateTime now;   
 
 #define HEATER_PIN 5
 #define FAN_PIN 4
 #define PUMP_PIN 2
-
-#define TMP_SENSOR_PIN 0 // temperature sensor pin
+#define TMP_SENSOR_PIN 0 
 #define SPEAKER_PIN 3
 
-// Display
-/*
-GND display -> GND arduino
-VCC display -> VCC arduino
-SDA display -> A4
-SCL display -> A5
-*/
+#define DHT_check_period 2000
 
-/*
-Time module
-GND -> GND arduino
-VCC -> VCC arduino
-SDA -> A4
-SCL -> A5
-*/
-
-#define MAX_OPTION
+#define MAX_OPTION 5
 #define MIN_OPTION 1
+int OPTION = 1; 
 
-// RGB LED
 #define RED_pin 1
 #define GREEN_pin 2
 #define BLUE_pin 3
@@ -48,18 +35,17 @@ bool current_Minus_Button = LOW;
 bool last_Mode_Button = LOW;
 bool current_Mode_Button = LOW;
 
-// Greenhouse settings
-#define WATERING_HOUR
-#define WATERING_MIN 0 // minute of watering
-#define WATERING_DURATION
-uint32_t PUMP_tmr;
+#define WATERING_HOUR 14
+#define WATERING_MIN 0 
+#define WATERING_DURATION 5000 
+uint32_t PUMP_tmr;            
 
 bool isWateredToday = false;
 
 bool debounce(bool last, short PIN) {
     bool current = digitalRead(PIN);
     if (last != current) {
-        uint32_t tmr;
+        static uint32_t tmr; 
         if(millis() - tmr >= 5) {
             current = digitalRead(PIN);
             tmr = millis();
@@ -76,18 +62,17 @@ void printTwoDigits(int number) {
 }
 
 void setup() {
-    // display initialiazation
     lcd.init();
     lcd.backlight();
+    
     if (!rtc.begin()) {
         lcd.setCursor(0, 0);
         lcd.print("RTC Error!");
         while(1);
     }
 
-    // if clock losed power, set compilation time
-    if (!rtc.isrunnin()) {
-        rtc.adjust(DateTime(f(__DATE__), F(__TIME__));
+    if (!rtc.isrunning()) {
+        rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
     }
 
     pinMode(HEATER_PIN, OUTPUT);
@@ -98,29 +83,30 @@ void setup() {
 }
 
 void loop() {
-    // printing time
+    now = rtc.now(); 
+
     lcd.setCursor(0, 0);
     printTwoDigits(now.hour());
     lcd.print(":");
-    printTwoDigits(now.min());
+    printTwoDigits(now.minute()); 
     lcd.print(":");
-    printTwoDigits(now.sec());
+    printTwoDigits(now.second()); 
 
-    if (now.hour() == WATERING_HOUR && now.min() == WATERING_MIN && !isWateredToday) {
+    if (now.hour() == WATERING_HOUR && now.minute() == WATERING_MIN && !isWateredToday) {
         lcd.setCursor(11, 1);
-        lcd.print("PUMP "); // write on display that watering is running
-        digitalWrite(PUMP_PIN, LOW);
+        lcd.print("PUMP "); 
+        digitalWrite(PUMP_PIN, HIGH); 
+        
         if (millis() - PUMP_tmr >= WATERING_DURATION) {
             digitalWrite(PUMP_PIN, LOW);
             PUMP_tmr = millis();
+            isWateredToday = true; 
+            lcd.setCursor(11, 1);
+            lcd.print("     ");
         }
-
-        isWateredToday = true; // today it already watered
-        lcd.setCursor(11, 1);
-        lcd.print("     ");
     }
 
-    if (now.min() != WATERING_MIN) {
+    if (now.minute() != WATERING_MIN) {
         isWateredToday = false;
     }
 
@@ -142,8 +128,23 @@ void loop() {
             OPTION = MIN_OPTION;
         }
     }
+    last_Minus_Button = current_Minus_Button; 
 
-    switch (MODE) {
-        case 1:
-            
+    // Выводим выбранную опцию на экран (строка 2, позиция 0)
+    lcd.setCursor(0, 1);
+    lcd.print("Opt: ");
+    lcd.print(OPTION);
+
+    static uint32_t dht_tmr;
+    if (millis() - dht_tmr >= DHT_check_period) {
+        dht_tmr = millis(); 
+        
+        int temperature = 24; 
+        int humidity = 50;
+
+        lcd.setCursor(10, 0);
+        lcd.print(temperature);
+        lcd.print("C   ");
+    }
 }
+
