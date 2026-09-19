@@ -19,6 +19,7 @@ DateTime now;
 #define MIN_OPTION 1
 int OPTION = 1; 
 
+// RGB led
 #define RED_pin 1
 #define GREEN_pin 2
 #define BLUE_pin 3
@@ -52,6 +53,19 @@ bool debounce(bool last, short PIN) {
         }
     }
     return current;
+}
+
+#define BUZZER_pin
+
+void buzz_pic(int times, period) {
+    static uint32_t buzzer_tmr;
+    for (int i=0; i < times; i++) {
+        if (millis() - buzzer_tmr >= period) {
+            buzzer_tmr = millis();
+            dgitalWrite(BUZZER_pin, HIGH);
+        }
+        digitalWrite(BUZZER_pin, LOW);
+    }
 }
 
 void printTwoDigits(int number) {
@@ -96,6 +110,19 @@ void loop() {
         lcd.setCursor(11, 1);
         lcd.print("PUMP "); 
         digitalWrite(PUMP_PIN, HIGH); 
+        bool isWatering = digitalRead(PUMP_PIN);
+        if (isWatering) {
+            analogWrite(RED_pin, 0);
+            analogWrite(GREEN_pin, 0);
+            analogWrite(BLUE_pin, 255);
+
+            buzz_pic(2, 25);
+        }
+        else if (isWatering == false) {
+            analogWrite(RED_pin, 0);
+            analogWrite(GREEN_pin, 0);
+            analogWrite(BLUE_pin, 0);
+        }
         
         if (millis() - PUMP_tmr >= WATERING_DURATION) {
             digitalWrite(PUMP_PIN, LOW);
@@ -130,7 +157,6 @@ void loop() {
     }
     last_Minus_Button = current_Minus_Button; 
 
-    // Выводим выбранную опцию на экран (строка 2, позиция 0)
     lcd.setCursor(0, 1);
     lcd.print("Opt: ");
     lcd.print(OPTION);
