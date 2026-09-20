@@ -1,9 +1,10 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include <LiquidCrystal_I2C.h>
 #include <RTClib.h>
 
-LiquidCrystal_I2C lcd(0x27, 16, 2);
+#include <SoftSPIB.h>
+#include <LiquidCrystal_AIP31068_I2C.h>
+LiquidCrystal_AIP31068_I2C lcd(0x3E, 16, 2);
 RTC_DS1307 rtc; 
 DateTime now;   
 
@@ -55,14 +56,14 @@ bool debounce(bool last, short PIN) {
     return current;
 }
 
-#define BUZZER_pin
+#define BUZZER_pin 3
 
-void buzz_pic(int times, period) {
+void buzz_pic(int times, int period) {
     static uint32_t buzzer_tmr;
     for (int i=0; i < times; i++) {
         if (millis() - buzzer_tmr >= period) {
             buzzer_tmr = millis();
-            dgitalWrite(BUZZER_pin, HIGH);
+            digitalWrite(BUZZER_pin, HIGH);
         }
         digitalWrite(BUZZER_pin, LOW);
     }
@@ -77,7 +78,7 @@ void printTwoDigits(int number) {
 
 void setup() {
     lcd.init();
-    lcd.backlight();
+//    lcd.backlight();
     
     if (!rtc.begin()) {
         lcd.setCursor(0, 0);
@@ -173,4 +174,3 @@ void loop() {
         lcd.print("C   ");
     }
 }
-
