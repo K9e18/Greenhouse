@@ -2,7 +2,7 @@
 ![Project scheme](schemes/project_scheme.png)
 
 ## Features
-***of automatical greenhouse
+of automatical greenhouse
 * watering
 * heatering
 * colling
