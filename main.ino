@@ -1,6 +1,9 @@
+#include <config.h>
+
 #include <Arduino.h>
 #include <Wire.h>
 #include <RTClib.h>
+#include <DHT.h>
 
 #include <SoftSPIB.h>
 #include <LiquidCrystal_AIP31068_I2C.h>
@@ -8,32 +11,17 @@ LiquidCrystal_AIP31068_I2C lcd(0x3E, 16, 2);
 RTC_DS1307 rtc; 
 DateTime now;   
 
-#define HEATER_PIN 5
-#define FAN_PIN 4
-#define PUMP_PIN 2
-#define TMP_SENSOR_PIN 0 
-#define SPEAKER_PIN 3
+#define DHTTYPE DHT22 // DHT 22
+DHT dht(DHT_PIN, DHTTYPE); // Initialize DHT
 
-#define DHT_check_period 2000
-
-#define MAX_OPTION 5
-#define MIN_OPTION 1
 int OPTION = 1; 
 
-// RGB led
-#define RED_pin 1
-#define GREEN_pin 2
-#define BLUE_pin 3
-
-#define Plus_Button_Pin 7
 bool last_Plus_Button = LOW;
 bool current_Plus_Button = LOW;
 
-#define Minus_Button_Pin 8
 bool last_Minus_Button = LOW;
 bool current_Minus_Button = LOW;
 
-#define Mode_Button_Pin 9
 bool last_Mode_Button = LOW;
 bool current_Mode_Button = LOW;
 
@@ -69,6 +57,22 @@ void buzz_pic(int times, int period) {
     }
 }
 
+int max_temperature(int current_temperature) {
+    int max_temperature = dht.readTemperature();
+    if (max_temperature > temperature) {
+        return max_temperature;
+    }
+    return current_temperature;
+}
+
+int min_temperature(int current_temperature) {
+    int min_temperature = dht.readTemperature();
+    if (min_temperature < current_temperature) {
+        return min_temperature;
+    }
+    return current_temperature;
+}
+
 void printTwoDigits(int number) {
     if (number < 10) {
         lcd.print("0");
@@ -76,7 +80,33 @@ void printTwoDigits(int number) {
     lcd.print(number);
 }
 
+float global_Max_temperature = 999.0;
+float global_Min_temperature = -999.0;
+
+void update_Max_Min_temperature(float current_temperature) {
+    if (current_temperature > MAX_temperature) {
+        MAX_temperature = current_temperature;
+    }
+    if (current_temperature < MIN_temperature) {
+        MIN_temperature = current_temperature;
+    }
+}
+
+int global_Max_humidity = 100;
+int global_Min_humidity = 0;
+
+void update_Max_Min_humidity(int current_humidity) {
+    if (current_humidity > MAX_humidity) {
+        MAX_humidity = current_humidity;
+    }
+    if (current_humidity < global_MIN_humidity) {
+        MIN_humidity = current_humidity;
+    }
+}
+
 void setup() {
+    dht.begin();
+    
     lcd.init();
 //    lcd.backlight();
     
@@ -100,12 +130,51 @@ void setup() {
 void loop() {
     now = rtc.now(); 
 
-    lcd.setCursor(0, 0);
-    printTwoDigits(now.hour());
-    lcd.print(":");
-    printTwoDigits(now.minute()); 
-    lcd.print(":");
-    printTwoDigits(now.second()); 
+    int current_humidity = dht.readHumidity();
+    float current_temperature = dht.readTemperature();
+
+    static uint32_t dht_tmr;
+    if (millis() - dht_tmr >= DHT_check_period) {
+        dht_tmr = millis(); 
+        
+        if (!isnan(current_temperature)) {
+            update_Max_Min_temperature(current_temperature);
+            update_Max_Min_humidity(current_humidity);
+        }
+        current_humidity = dht.readHumidity();
+        current_temperature = dht.readTemperature();
+    }
+
+    switch (OPTION) {
+        case 1:
+            lcd.setCursor(0, 0);
+            printTwoDigits(now.hour());
+            lcd.print(":");
+            printTwoDigits(now.minute()); 
+
+            // print temperature
+            lcd.setCursor(10, 0);
+            lcd.print(temperature);
+            lcd.print("C   ");
+            
+            // print humidity
+            lcd.setCursor(10, 1);
+            lcd.print(humidity);
+            lcd.print("%    ");
+
+            break;
+
+        case 2:
+            // print max end min temperature
+            // print max end min moisture
+        case 3:
+            // mode for start watering
+        case 4:
+            // mode for start faning
+        case 5:
+            // mode for show stats
+    }
+
 
     if (now.hour() == WATERING_HOUR && now.minute() == WATERING_MIN && !isWateredToday) {
         lcd.setCursor(11, 1);
@@ -143,16 +212,6 @@ void loop() {
     current_Plus_Button = debounce(last_Plus_Button, Plus_Button_Pin);
     if (last_Plus_Button == LOW &&  current_Plus_Button == HIGH) {
         OPTION++;
-        if (OPTION > MAX_OPTION) {
-            OPTION = MAX_OPTION;
-        }
-    }
-    last_Plus_Button = current_Plus_Button;
-
-    current_Minus_Button = debounce(last_Minus_Button, Minus_Button_Pin);
-    if (last_Minus_Button == LOW && current_Minus_Button == HIGH) {
-        OPTION--;
-        if (OPTION < MIN_OPTION) {
             OPTION = MIN_OPTION;
         }
     }
@@ -161,16 +220,4 @@ void loop() {
     lcd.setCursor(0, 1);
     lcd.print("Opt: ");
     lcd.print(OPTION);
-
-    static uint32_t dht_tmr;
-    if (millis() - dht_tmr >= DHT_check_period) {
-        dht_tmr = millis(); 
-        
-        int temperature = 24; 
-        int humidity = 50;
-
-        lcd.setCursor(10, 0);
-        lcd.print(temperature);
-        lcd.print("C   ");
-    }
 }
