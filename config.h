@@ -5,7 +5,7 @@
 
 // cooling system
 #define HEATER_PIN 5
-#define FAN_PIN 4 A0
+#define FAN_PIN 4
 
 #define TMP_SENSOR_PIN 0 
 #define DHT_check_period 2000
@@ -31,4 +31,3 @@
 
 // buzzer
 #define BUZZER_pin 3
-

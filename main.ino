@@ -1,4 +1,5 @@
 #include <config.h>
+#include <symbols.h>
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -80,8 +81,8 @@ void printTwoDigits(int number) {
     lcd.print(number);
 }
 
-float global_Max_temperature = 999.0;
-float global_Min_temperature = -999.0;
+float MAX_temperature = 999.0;
+float MIN_temperature = -999.0;
 
 void update_Max_Min_temperature(float current_temperature) {
     if (current_temperature > MAX_temperature) {
@@ -92,8 +93,8 @@ void update_Max_Min_temperature(float current_temperature) {
     }
 }
 
-int global_Max_humidity = 100;
-int global_Min_humidity = 0;
+int MAX_humidity = 100;
+int MIN_humidity = 0;
 
 void update_Max_Min_humidity(int current_humidity) {
     if (current_humidity > MAX_humidity) {
@@ -115,6 +116,11 @@ void setup() {
         lcd.print("RTC Error!");
         while(1);
     }
+
+    // creating Symbols
+    lcd.createChar(0, degree_Symbol);
+    lcd.createChar(1, fan_is_on_Symbol);
+    
 
     if (!rtc.isrunning()) {
         rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
@@ -145,6 +151,10 @@ void loop() {
         current_temperature = dht.readTemperature();
     }
 
+    lcd.setCursor(0, 1);
+    lcd.print("Opt: ");
+    lcd.print(OPTION);
+
     switch (OPTION) {
         case 1:
             lcd.setCursor(0, 0);
@@ -167,6 +177,10 @@ void loop() {
         case 2:
             // print max end min temperature
             // print max end min moisture
+            lcd.setCursor(0,0);
+            lcd.print("Max t: ")
+            lcd.print(MAX_temperature);
+            lcd.write((byte)0)
         case 3:
             // mode for start watering
         case 4:
@@ -216,8 +230,4 @@ void loop() {
         }
     }
     last_Minus_Button = current_Minus_Button; 
-
-    lcd.setCursor(0, 1);
-    lcd.print("Opt: ");
-    lcd.print(OPTION);
 }
