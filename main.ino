@@ -165,7 +165,8 @@ void loop() {
             // print temperature
             lcd.setCursor(10, 0);
             lcd.print(temperature);
-            lcd.print("C   ");
+            lcd.print("C");
+            lcd.write((byte)0);
             
             // print humidity
             lcd.setCursor(10, 1);
@@ -175,12 +176,29 @@ void loop() {
             break;
 
         case 2:
-            // print max end min temperature
-            // print max end min moisture
+            // print max temperature
             lcd.setCursor(0,0);
-            lcd.print("Max t: ")
+            lcd.print("MAX t: ")
             lcd.print(MAX_temperature);
-            lcd.write((byte)0)
+            lcd.write((byte)0);
+
+            // print min temperature
+            lcd.setCursor(0, 10);
+            lcd.print("MIN t: "
+
+            // print max humidity
+            lcd.setCursor(1,0);
+            lcd.print("MAX h: ");
+            lcd.print(MAX_humidity);
+            lcd.print("%");
+
+            // print min humidity
+            lcd.setCursor(1, 10);
+            lcd.print("MIN h: ");
+            lcd.print(MIN_humidity);
+            lcd.print("%");
+
+            break;
         case 3:
             // mode for start watering
         case 4:
