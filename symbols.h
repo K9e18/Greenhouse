@@ -25,3 +25,15 @@ const byte fan_is_on_Symbol[8] = {
   0b00100,
   0b00000
 };
+
+// Custom "water drop" symbol
+const byte water_drop_Symbol[8] = {
+      0b00100,
+      0b00100,
+      0b01110,
+      0b01110,
+      0b11111,
+      0b11111,
+      0b11111,
+      0b01110
+}
