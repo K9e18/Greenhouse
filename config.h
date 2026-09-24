@@ -15,6 +15,8 @@
 
 // temperature
 #define tmp_period 1000 * 3 // <- seconds
+#define MIN_plant_temperature 15
+#define MAX_plant_temperature 25
 
 // RGB led
 #define RED_pin 1
@@ -28,8 +30,8 @@
 
 // watering settings
 #define PUMP_PIN 2
-#define WATERING_HOUR 14
-#define WATERING_MIN 0 
+#define WATERING_HOUR 14    // ]
+#define WATERING_MIN 0      // ] -> it means that watering will on in 14:00, change it for your plants 
 #define WATERING_DURATION 5000 
 
 // buzzer
