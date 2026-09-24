@@ -45,8 +45,6 @@ bool debounce(bool last, short PIN) {
     return current;
 }
 
-#define BUZZER_pin 3
-
 void buzz_pic(int times, int period) {
     static uint32_t buzzer_tmr;
     for (int i=0; i < times; i++) {
@@ -150,6 +148,28 @@ void loop() {
         current_humidity = dht.readHumidity();
         current_temperature = dht.readTemperature();
     }
+    
+    static int32_t tmp_tmr;
+    if (millis() - tmp_tmr >= tmp_period) {
+        tmp_tmr = millis();
+
+        if (current_temperature < MIN_plant_temperature) {
+            while (current_temperature < MIN_plant_temperature) {
+                digitalWrite(FAN_PIN, HIGH);
+                digitalWrite(HEATER_PIN, HIGH);
+            }
+        }
+
+        if (current_temperature > MAX_plant_temperature) {
+            while (current_temperature > MAX_plant_temperature) {
+                digitalWrite(FAN_PIN, HIGH);
+                digitalWrite(HEATER_PIN, HIGH);
+            }
+        }
+
+        digitalWrite(FAN_PIN, LOW);
+        digitalWrite(HEATER_PIN, LOW);
+    }
 
     lcd.setCursor(0, 1);
     lcd.print("Opt: ");
@@ -238,6 +258,7 @@ void loop() {
     if (now.minute() != WATERING_MIN) {
         isWateredToday = false;
     }
+
 
     current_Mode_Button = debounce(last_Mode_Button, Mode_Button_Pin);
 

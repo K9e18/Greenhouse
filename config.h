@@ -13,6 +13,9 @@
 #define MAX_OPTION 5
 #define MIN_OPTION 1
 
+// temperature
+#define tmp_period 1000 * 3 // <- seconds
+
 // RGB led
 #define RED_pin 1
 #define GREEN_pin 2
