@@ -149,26 +149,29 @@ void loop() {
         current_temperature = dht.readTemperature();
     }
     
+    bool is_FAN_on = false;
+    bool is_HEATER_on = false;
+    
     static int32_t tmp_tmr;
     if (millis() - tmp_tmr >= tmp_period) {
         tmp_tmr = millis();
 
         if (current_temperature < MIN_plant_temperature) {
-            while (current_temperature < MIN_plant_temperature) {
-                digitalWrite(FAN_PIN, HIGH);
-                digitalWrite(HEATER_PIN, HIGH);
-            }
+            is_FAN_on = true;
+            is_HEATER_on = true;
         }
 
-        if (current_temperature > MAX_plant_temperature) {
-            while (current_temperature > MAX_plant_temperature) {
-                digitalWrite(FAN_PIN, HIGH);
-                digitalWrite(HEATER_PIN, HIGH);
-            }
+        else if (current_temperature > MAX_plant_temperature) {
+            is_FAN_on = true;
         }
 
-        digitalWrite(FAN_PIN, LOW);
-        digitalWrite(HEATER_PIN, LOW);
+        else {
+            is_FAN_on = false;
+            is_HEATER_on = false;
+        }
+
+        digitalWrite(FAN_PIN, is_FAN_on);
+        digitalWrite(HEATER_PIN, is_HEATER_on);
     }
 
     lcd.setCursor(0, 1);
