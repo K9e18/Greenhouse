@@ -26,9 +26,6 @@ bool current_Minus_Button = LOW;
 bool last_Mode_Button = LOW;
 bool current_Mode_Button = LOW;
 
-#define WATERING_HOUR 14
-#define WATERING_MIN 0 
-#define WATERING_DURATION 5000 
 uint32_t PUMP_tmr;            
 
 bool isWateredToday = false;
@@ -174,12 +171,12 @@ void loop() {
         digitalWrite(HEATER_PIN, is_HEATER_on);
     }
 
-    lcd.setCursor(0, 1);
-    lcd.print("Opt: ");
-    lcd.print(OPTION);
-
     switch (OPTION) {
         case 1:
+            lcd.setCursot(0, 1);
+            lcd.print("Opt: ");
+            lcd.print(OPTION);
+
             lcd.setCursor(0, 0);
             printTwoDigits(now.hour());
             lcd.print(":");
@@ -199,8 +196,12 @@ void loop() {
             break;
 
         case 2:
+            lcd.setCursor(0,1);
+            lcd.print("Opt: ");
+            lcd.print(OPTION);
+
             // print max temperature
-            lcd.setCursor(0,0);
+            lcd.setCursor(0,7);
             lcd.print("MAX t: ")
             lcd.print(MAX_temperature);
             lcd.write((byte)0);
