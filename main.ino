@@ -173,7 +173,7 @@ void loop() {
 
     switch (OPTION) {
         case 1:
-            lcd.setCursot(0, 1);
+            lcd.setCursor(0, 1);
             lcd.print("Opt: ");
             lcd.print(OPTION);
 
@@ -202,13 +202,13 @@ void loop() {
 
             // print max temperature
             lcd.setCursor(0,7);
-            lcd.print("MAX t: ")
+            lcd.print("MAX t: ");
             lcd.print(MAX_temperature);
             lcd.write((byte)0);
 
             // print min temperature
             lcd.setCursor(0, 10);
-            lcd.print("MIN t: "
+            lcd.print("MIN t: ");
 
             // print max humidity
             lcd.setCursor(1,0);
