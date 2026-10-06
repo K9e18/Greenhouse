@@ -1,5 +1,13 @@
+Example for 1st option:
+
 0 5 : 2 5   T : N N .  N  C  temp_symb    is_fan_on_symb
 0 1 2 3 4 5 6 7 8 9 10 11 12 13        14 15
 
 O p t : N   H : N N %     is_watering_on
 0 1 2 3 4 5 6 7 8 9 10 11 12             13 14 15
+
+Example for 2nd option:
+
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
