@@ -3,13 +3,20 @@ Example for 1st option:
 0 5 : 2 5   T : N N .  N  C  temp_symb    is_fan_on_symb
 0 1 2 3 4 5 6 7 8 9 10 11 12 13        14 15
 
-O p t : N   H : N N %     is_watering_on
-0 1 2 3 4 5 6 7 8 9 10 11 12             13 14 15
+O p t N   H : N N %                 is_watering_on_symb
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14  15
 
 Example for 2nd option:
 
-M A X   t : N N . N C  temp_sym
-0 1 2 3 4 5 6 7 8 9 10          11 12 13 14 15
+          M A X t :  N  N  .  N  C  temp_sym
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14  15
 
-M I N   t : N N . N C  temp_symb
-0 1 2 3 4 5 6 7 8 9 10 11        12 13 14 15
+O p t N   M I N t : N  N  .  N  C  temp_symb
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+
+Example for 3rd option:
+
+          M A X   h : N N %
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+O p t N   M I N   h : N N %
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
