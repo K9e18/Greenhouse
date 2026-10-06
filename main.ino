@@ -171,12 +171,11 @@ void loop() {
         digitalWrite(HEATER_PIN, is_HEATER_on);
     }
 
+    lcd.setCursor(0, 1);
+    lcd.print("Opt: ");
+    lcd.print(OPTION);
     switch (OPTION) {
         case 1:
-            lcd.setCursor(0, 1);
-            lcd.print("Opt: ");
-            lcd.print(OPTION);
-
             lcd.setCursor(0, 0);
             printTwoDigits(now.hour());
             lcd.print(":");
@@ -196,10 +195,6 @@ void loop() {
             break;
 
         case 2:
-            lcd.setCursor(0,1);
-            lcd.print("Opt: ");
-            lcd.print(OPTION);
-
             // print max temperature
             lcd.setCursor(0,7);
             lcd.print("MAX t: ");

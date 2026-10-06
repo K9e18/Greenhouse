@@ -5,6 +5,7 @@
 !**/
 
 # Track only specific file types across all folders
+!*.txt
 !*.png
 !*.ino
 !*.md
