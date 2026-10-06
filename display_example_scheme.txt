@@ -8,6 +8,8 @@ O p t : N   H : N N %     is_watering_on
 
 Example for 2nd option:
 
-0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+M A X   t : N N . N C  temp_sym
+0 1 2 3 4 5 6 7 8 9 10          11 12 13 14 15
 
-0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+M I N   t : N N . N C  temp_symb
+0 1 2 3 4 5 6 7 8 9 10 11        12 13 14 15

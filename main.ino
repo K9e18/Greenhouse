@@ -171,11 +171,12 @@ void loop() {
         digitalWrite(HEATER_PIN, is_HEATER_on);
     }
 
-    lcd.setCursor(0, 1);
-    lcd.print("Opt: ");
-    lcd.print(OPTION);
     switch (OPTION) {
         case 1:
+            lcd.setCursor(0, 1);
+            lcd.print("Opt: ");
+            lcd.print(OPTION);
+
             lcd.setCursor(0, 0);
             printTwoDigits(now.hour());
             lcd.print(":");
@@ -205,21 +206,9 @@ void loop() {
             lcd.setCursor(0, 10);
             lcd.print("MIN t: ");
 
-            // print max humidity
-            lcd.setCursor(1,0);
-            lcd.print("MAX h: ");
-            lcd.print(MAX_humidity);
-            lcd.print("%");
-
-            // print min humidity
-            lcd.setCursor(1, 10);
-            lcd.print("MIN h: ");
-            lcd.print(MIN_humidity);
-            lcd.print("%");
-
             break;
         case 3:
-            // mode for start watering
+            // print max humidity
         case 4:
             // mode for start faning
         case 5:
