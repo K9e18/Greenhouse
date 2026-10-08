@@ -197,20 +197,28 @@ void loop() {
 
         case 2:
             // print max temperature
-            lcd.setCursor(0,7);
+            lcd.setCursor(0, 5);
             lcd.print("MAX t: ");
             lcd.print(MAX_temperature);
             lcd.write((byte)0);
 
             // print min temperature
-            lcd.setCursor(0, 10);
+            lcd.setCursor(1, 5);
             lcd.print("MIN t: ");
+            lcd.print(MIN_temperature);
+            lcd.write((byte)0);
 
             break;
         case 3:
             // print max humidity
+            lcd.Setcursor(0, 5);
+            lcd.print("MAX h: ");
+            lcd.print(MAX_humidity);
+            lcd.print("%");
+
         case 4:
             // mode for start faning
+            
         case 5:
             // mode for show stats
     }
