@@ -134,6 +134,19 @@ void loop() {
     int current_humidity = dht.readHumidity();
     float current_temperature = dht.readTemperature();
 
+    int current_light_val;
+    static uint32_t light_tmr;
+    if (millis() - light_tmr >= Light_check_period) {
+        light_tmr = millis();
+        
+        if (current_light_val < MIN_light_val) {
+            digitalWrite(LIGHT_SENSOR_PIN, HIGH);
+        }
+        else {
+            digitalWrite(LIGHT_SENSOR_PIN, LOW);
+        }
+    }
+
     static uint32_t dht_tmr;
     if (millis() - dht_tmr >= DHT_check_period) {
         dht_tmr = millis(); 

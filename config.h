@@ -3,6 +3,12 @@
 // DHT
 #define DHT_PIN A0
 
+// Lighting system
+#define LIGHT_SENSOR_PIN
+#define LIHGT_check_period = 200;
+#define MIN_light_val
+#define MAX_light_val
+
 // cooling system
 #define HEATER_PIN 5
 #define FAN_PIN 4
