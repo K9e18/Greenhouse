@@ -4,6 +4,7 @@
 #define DHT_PIN A0
 
 // Lighting system
+#define LIGHT_PANEL_PIN 
 #define LIGHT_SENSOR_PIN
 #define LIHGT_check_period = 200;
 #define MIN_light_val

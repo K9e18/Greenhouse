@@ -134,18 +134,24 @@ void loop() {
     int current_humidity = dht.readHumidity();
     float current_temperature = dht.readTemperature();
 
+    bool is_LIGHT_on = false;
+
     int current_light_val;
     static uint32_t light_tmr;
     if (millis() - light_tmr >= Light_check_period) {
         light_tmr = millis();
         
+        digitalWrite(LIGHT_PANEL_PIN, LOW);
         if (current_light_val < MIN_light_val) {
-            digitalWrite(LIGHT_SENSOR_PIN, HIGH);
+            is_LIGHT_on = true;
         }
-        else {
-            digitalWrite(LIGHT_SENSOR_PIN, LOW);
+
+        else if (current_temperature > MAX_plant_temperature) {
+            is_LIGHT_on = false;
         }
     }
+
+    digitalWrite(LIGHT_PANEL_PIN, is_LIGHT_on);
 
     static uint32_t dht_tmr;
     if (millis() - dht_tmr >= DHT_check_period) {
