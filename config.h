@@ -6,7 +6,7 @@
 // Lighting system
 #define LIGHT_PANEL_PIN 
 #define LIGHT_SENSOR_PIN
-#define LIHGT_check_period = 200;
+#define LIHGT_check_period 200
 #define MIN_light_val
 #define MAX_light_val
 
@@ -26,9 +26,9 @@
 #define MAX_plant_temperature 25
 
 // RGB led
-#define RED_pin 1
-#define GREEN_pin 2
-#define BLUE_pin 3
+#define RED_pin A1
+#define GREEN_pin A2
+#define BLUE_pin A3
 
 // buttons
 #define Plus_Button_Pin 7
@@ -36,7 +36,7 @@
 #define Mode_Button_Pin 9
 
 // watering settings
-#define PUMP_PIN 2
+#define PUMP_PIN 6
 #define WATERING_HOUR 14    // ]
 #define WATERING_MIN 0      // ] -> it means that watering will on in 14:00, change it for your plants 
 #define WATERING_DURATION 5000 

@@ -138,7 +138,7 @@ void loop() {
 
     int current_light_val;
     static uint32_t light_tmr;
-    if (millis() - light_tmr >= Light_check_period) {
+    if (millis() - light_tmr >= LIGHT_check_period) {
         light_tmr = millis();
         
         digitalWrite(LIGHT_PANEL_PIN, LOW);
@@ -235,11 +235,15 @@ void loop() {
             lcd.print(MAX_humidity);
             lcd.print("%");
 
+            break;
+
         case 4:
             // mode for start faning
+            break;
             
         case 5:
             // mode for show stats
+            break;
     }
 
 
