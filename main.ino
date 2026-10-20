@@ -266,6 +266,8 @@ void loop() {
         }
         
         if (millis() - PUMP_tmr >= WATERING_DURATION) {
+            PUMP_tmr = millis();
+
             digitalWrite(PUMP_PIN, LOW);
             PUMP_tmr = millis();
             isWateredToday = true; 
@@ -284,6 +286,7 @@ void loop() {
     current_Plus_Button = debounce(last_Plus_Button, Plus_Button_Pin);
     if (last_Plus_Button == LOW &&  current_Plus_Button == HIGH) {
         OPTION++;
+        if (OPTION > MAX_OPTION) {
             OPTION = MIN_OPTION;
         }
     }
