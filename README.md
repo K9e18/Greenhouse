@@ -57,7 +57,7 @@ Modern crop production increasingly relies on automation. Maintaining optimal te
 
 > **Note:** The image below must be placed in the root directory of the repository.
 
-![Wiring Diagram](project_scheme.png)
+![Wiring Diagram](schemes/project_scheme.png)
 
 ### Pin Configuration
 
