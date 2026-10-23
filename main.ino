@@ -141,6 +141,7 @@ void loop() {
     if (millis() - light_tmr >= LIGHT_check_period) {
         light_tmr = millis();
         
+        current_light_val = analogRead(LIGHT_sensor_pin);
         digitalWrite(LIGHT_PANEL_PIN, LOW);
         if (current_light_val < MIN_light_val) {
             is_LIGHT_on = true;
@@ -237,6 +238,7 @@ void loop() {
 
             break;
 
+/*
         case 4:
             // mode for start faning
             break;
@@ -244,8 +246,16 @@ void loop() {
         case 5:
             // mode for show stats
             break;
+*/
     }
 
+    static int32_t LIGHT_check_tmr;
+    if (millis() - LIGHT_check_tmr >= LIGHT_check_period) {
+        LIGHT_check_tmr = millis();
+
+        digitalWrite(LIGHT_PANEL_PIN, LOW);
+        if (current_light_val < MIN_light_val
+    }
 
     if (now.hour() == WATERING_HOUR && now.minute() == WATERING_MIN && !isWateredToday) {
         lcd.setCursor(11, 1);

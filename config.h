@@ -4,11 +4,11 @@
 #define DHT_PIN A0
 
 // Lighting system
-#define LIGHT_PANEL_PIN 
-#define LIGHT_SENSOR_PIN
+#define LIGHT_panel_pin 12
+#define LIGHT_sensor_pin 10
 #define LIHGT_check_period 200
-#define MIN_light_val
-#define MAX_light_val
+#define MIN_light_val // you should to correct this data by yourself
+#define MAX_light_val // and this too
 
 // cooling system
 #define HEATER_PIN 5
