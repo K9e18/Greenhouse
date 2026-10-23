@@ -204,26 +204,26 @@ void loop() {
 
             // print temperature
             lcd.setCursor(10, 0);
-            lcd.print(temperature);
+            lcd.print(current_temperature);
             lcd.print("C");
             lcd.write((byte)0);
             
             // print humidity
             lcd.setCursor(10, 1);
-            lcd.print(humidity);
+            lcd.print(current_humidity);
             lcd.print("%    ");
 
             break;
 
         case 2:
             // print max temperature
-            lcd.setCursor(0, 5);
+            lcd.setCursor(5, 0);
             lcd.print("MAX t: ");
             lcd.print(MAX_temperature);
             lcd.write((byte)0);
 
             // print min temperature
-            lcd.setCursor(1, 5);
+            lcd.setCursor(5, 1);
             lcd.print("MIN t: ");
             lcd.print(MIN_temperature);
             lcd.write((byte)0);
@@ -231,7 +231,7 @@ void loop() {
             break;
         case 3:
             // print max humidity
-            lcd.Setcursor(0, 5);
+            lcd.setCursor(5, 0);
             lcd.print("MAX h: ");
             lcd.print(MAX_humidity);
             lcd.print("%");
@@ -254,7 +254,9 @@ void loop() {
         LIGHT_check_tmr = millis();
 
         digitalWrite(LIGHT_PANEL_PIN, LOW);
-        if (current_light_val < MIN_light_val
+        if (current_light_val < MIN_light_val) {
+            digitalWrite(LIGHT_PANEL_PIN);
+        }
     }
 
     if (now.hour() == WATERING_HOUR && now.minute() == WATERING_MIN && !isWateredToday) {
@@ -279,7 +281,6 @@ void loop() {
             PUMP_tmr = millis();
 
             digitalWrite(PUMP_PIN, LOW);
-            PUMP_tmr = millis();
             isWateredToday = true; 
             lcd.setCursor(11, 1);
             lcd.print("     ");
@@ -301,4 +302,5 @@ void loop() {
         }
     }
     last_Minus_Button = current_Minus_Button; 
+    last_Plus_Button = current_Plus_Button;
 }

@@ -7,8 +7,8 @@
 #define LIGHT_panel_pin 12
 #define LIGHT_sensor_pin 10
 #define LIHGT_check_period 200
-#define MIN_light_val // you should to correct this data by yourself
-#define MAX_light_val // and this too
+#define MIN_light_val 500 // you should to correct this data by yourself
+#define MAX_light_val 1000 // and this too
 
 // cooling system
 #define HEATER_PIN 5
