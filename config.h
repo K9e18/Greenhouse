@@ -4,10 +4,10 @@
 #define DHT_PIN A0
 
 // Lighting system
-#define LIGHT_panel_pin 12
-#define LIGHT_sensor_pin 10
-#define LIHGT_check_period 200
-#define MIN_light_val 500 // you should to correct this data by yourself
+#define LIGHT_PANEL_PIN 12
+#define LIGHT_SENSOR_PIN 10
+#define LIGHT_check_period 200
+#define MIN_light_val 500 // you should correct this data by yourself
 #define MAX_light_val 1000 // and this too
 
 // cooling system
@@ -21,7 +21,7 @@
 #define MIN_OPTION 1
 
 // temperature
-#define tmp_period 1000 * 3 // <- seconds
+#define tmp_period (1000 * 3) // added parentheses for safety
 #define MIN_plant_temperature 15
 #define MAX_plant_temperature 25
 
@@ -38,7 +38,7 @@
 // watering settings
 #define PUMP_PIN 6
 #define WATERING_HOUR 14    // ]
-#define WATERING_MIN 0      // ] -> it means that watering will on in 14:00, change it for your plants 
+#define WATERING_MIN 0      // ] -> it means that watering will on in 14:00
 #define WATERING_DURATION 5000 
 
 // buzzer
