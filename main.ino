@@ -82,18 +82,14 @@ void update_Max_Min_humidity(int current_humidity) {
 //            RGB ANIMATION FUNCTIONS
 // ==========================================
 
-// Watering animation (Blue flashing)
 void RGB_watering() {
     static short light_option = 1;
     static int32_t light_flash_tmr;
     
     if (millis() - light_flash_tmr >= light_flash_period) {
         light_flash_tmr = millis();
-        
         light_option++;
-        if (light_option > MAX_light_WATERING_options) {
-            light_option = 1;
-        }
+        if (light_option > MAX_light_WATERING_options) light_option = 1;
     }
     
     switch(light_option) {
@@ -114,28 +110,24 @@ void RGB_watering() {
     }
 }
 
-// Heating animation (Fire effect)
 void RGB_heatering() {
     static short light_option = 1;
     static int32_t light_flash_tmr;
     
     if (millis() - light_flash_tmr >= light_flash_period) {
         light_flash_tmr = millis();
-
         light_option++;
-        if (light_option > MAX_light_HEATERING_options) {
-            light_option = 1;
-        }
+        if (light_option > MAX_light_HEATERING_options) light_option = 1;
     }
     
     switch(light_option) {
-        case 1: analogWrite(RED_pin, 136); analogWrite(GREEN_pin, 8);  analogWrite(BLUE_pin, 8);  break; // Blood red
-        case 2: analogWrite(RED_pin, 170); analogWrite(GREEN_pin, 74); analogWrite(BLUE_pin, 68); break; // Brick red
-        case 3: analogWrite(RED_pin, 238); analogWrite(GREEN_pin, 75); analogWrite(BLUE_pin, 43); break; // Bright red
-        case 4: analogWrite(RED_pin, 165); analogWrite(GREEN_pin, 42); analogWrite(BLUE_pin, 42); break; // Brown
-        case 5: analogWrite(RED_pin, 128); analogWrite(GREEN_pin, 0);  analogWrite(BLUE_pin, 32); break; // Burgundy
-        case 6: analogWrite(RED_pin, 110); analogWrite(GREEN_pin, 38); analogWrite(BLUE_pin, 14); break; // Burnt umber
-        case 7: analogWrite(RED_pin, 204); analogWrite(GREEN_pin, 85); analogWrite(BLUE_pin, 0);  break; // Burnt orange
+        case 1: analogWrite(RED_pin, 136); analogWrite(GREEN_pin, 8);  analogWrite(BLUE_pin, 8);  break; 
+        case 2: analogWrite(RED_pin, 170); analogWrite(GREEN_pin, 74); analogWrite(BLUE_pin, 68); break; 
+        case 3: analogWrite(RED_pin, 238); analogWrite(GREEN_pin, 75); analogWrite(BLUE_pin, 43); break; 
+        case 4: analogWrite(RED_pin, 165); analogWrite(GREEN_pin, 42); analogWrite(BLUE_pin, 42); break; 
+        case 5: analogWrite(RED_pin, 128); analogWrite(GREEN_pin, 0);  analogWrite(BLUE_pin, 32); break; 
+        case 6: analogWrite(RED_pin, 110); analogWrite(GREEN_pin, 38); analogWrite(BLUE_pin, 14); break; 
+        case 7: analogWrite(RED_pin, 204); analogWrite(GREEN_pin, 85); analogWrite(BLUE_pin, 0);  break; 
     }
 }
 
@@ -153,8 +145,10 @@ void setup() {
         while(1);
     }
 
+    // Initialize custom symbols
     lcd.createChar(0, degree_Symbol);
     lcd.createChar(1, fan_is_on_Symbol);
+    lcd.createChar(2, water_drop_Symbol); // Water drop symbol initialized
 
     if (!rtc.isrunning()) {
         rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
@@ -181,14 +175,13 @@ void loop() {
     bool is_LIGHT_on = false;
     bool is_FAN_on = false;
     bool is_HEATER_on = false;
+    bool isWatering = (digitalRead(PUMP_PIN) == HIGH); // Moved up for LCD display
     
     // --- LIGHT CONTROL ---
     int current_light_val;
     static uint32_t light_tmr;
-    
     if (millis() - light_tmr >= LIGHT_check_period) {
         light_tmr = millis();
-        
         current_light_val = analogRead(LIGHT_SENSOR_PIN);
         if (current_light_val < MIN_light_val && current_temperature <= MAX_plant_temperature) {
             is_LIGHT_on = true;
@@ -208,11 +201,10 @@ void loop() {
         }
     }
     
-    // --- CLIMATE CONTROL (HEATER & FAN) ---
+    // --- CLIMATE CONTROL ---
     static int32_t tmp_tmr;
     if (millis() - tmp_tmr >= tmp_period) {
         tmp_tmr = millis();
-
         if (current_temperature < MIN_plant_temperature) {
             is_FAN_on = true;
             is_HEATER_on = true;
@@ -224,52 +216,75 @@ void loop() {
             is_FAN_on = false;
             is_HEATER_on = false;
         }
-
         digitalWrite(FAN_PIN, is_FAN_on);
         digitalWrite(HEATER_PIN, is_HEATER_on);
     }
 
-    // --- LCD DISPLAY LOGIC ---
+    // --- LCD DISPLAY LOGIC (Matches the scheme) ---
     switch (OPTION) {
         case 1:
-            lcd.setCursor(0, 1);
-            lcd.print("Opt: ");
-            lcd.print(OPTION);
-
+            // Line 0: 05:25   T: 22.5C° [fan_symb]
             lcd.setCursor(0, 0);
             printTwoDigits(now.hour());
             lcd.print(":");
             printTwoDigits(now.minute()); 
-
-            lcd.setCursor(10, 0);
-            lcd.print(current_temperature);
-            lcd.print("C");
-            lcd.write((byte)0);
             
-            lcd.setCursor(10, 1);
+            lcd.setCursor(8, 0);
+            lcd.print("T:");
+            lcd.setCursor(11, 0);
+            lcd.print(current_temperature, 1); // 1 decimal place to save space
+            lcd.print("C");
+            lcd.write((byte)0); // Degree symbol
+            
+            lcd.setCursor(15, 0);
+            if (is_FAN_on) lcd.write((byte)1); else lcd.print(" ");
+
+            // Line 1: Opt1  H: 45%     [water_symb]
+            lcd.setCursor(0, 1);
+            lcd.print("Opt");
+            lcd.print(OPTION);
+            
+            lcd.setCursor(8, 1);
+            lcd.print("H:");
+            lcd.setCursor(11, 1);
             lcd.print(current_humidity);
-            lcd.print("%    ");
+            lcd.print("% ");
+            
+            lcd.setCursor(15, 1);
+            if (isWatering) lcd.write((byte)2); else lcd.print(" ");
             break;
 
         case 2:
-            lcd.setCursor(0, 0);
+            // Line 0:       MAX t: 25.0°C
+            lcd.setCursor(3, 0);
             lcd.print("MAX t: ");
-            lcd.print(MAX_temperature);
+            lcd.print(MAX_temperature, 1);
+            lcd.print("C");
             lcd.write((byte)0);
 
+            // Line 1: Opt2  MIN t: 18.0°C
             lcd.setCursor(0, 1);
+            lcd.print("Opt");
+            lcd.print(OPTION);
+            lcd.setCursor(7, 1);
             lcd.print("MIN t: ");
-            lcd.print(MIN_temperature);
+            lcd.print(MIN_temperature, 1);
+            lcd.print("C");
             lcd.write((byte)0);
             break;
             
         case 3:
-            lcd.setCursor(0, 0);
+            // Line 0:       MAX h: 60%
+            lcd.setCursor(3, 0);
             lcd.print("MAX h: ");
             lcd.print(MAX_humidity);
             lcd.print("%");
-            
+
+            // Line 1: Opt3  MIN h: 40%
             lcd.setCursor(0, 1);
+            lcd.print("Opt");
+            lcd.print(OPTION);
+            lcd.setCursor(7, 1);
             lcd.print("MIN h: ");
             lcd.print(MIN_humidity);
             lcd.print("%");
@@ -280,17 +295,13 @@ void loop() {
     if (now.hour() == WATERING_HOUR && now.minute() == WATERING_MIN && !isWateredToday) {
         if (digitalRead(PUMP_PIN) == LOW) {
             digitalWrite(PUMP_PIN, HIGH); 
-            PUMP_tmr = millis(); // Start timer exactly when pump turns on
-            lcd.setCursor(11, 1);
-            lcd.print("PUMP "); 
+            PUMP_tmr = millis(); 
             buzz_pic(2, 25);
         }
         
         if (millis() - PUMP_tmr >= WATERING_DURATION) {
             digitalWrite(PUMP_PIN, LOW);
             isWateredToday = true; 
-            lcd.setCursor(11, 1);
-            lcd.print("     ");
         }
     }
 
@@ -299,18 +310,13 @@ void loop() {
     }
 
     // --- RGB LED STATE MACHINE ---
-    bool isWatering = (digitalRead(PUMP_PIN) == HIGH);
-
     if (isWatering) {
-        // Priority 1: Watering animation
         RGB_watering();
     } 
     else if (is_HEATER_on) {
-        // Priority 2: Heater fire animation
         RGB_heatering();
     } 
     else {
-        // Priority 3: Idle (Off)
         analogWrite(RED_pin, 0);
         analogWrite(GREEN_pin, 0);
         analogWrite(BLUE_pin, 0);
