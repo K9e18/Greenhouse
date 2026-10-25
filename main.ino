@@ -17,6 +17,7 @@ DateTime now;
 DHT dht(DHT_PIN, DHTTYPE);
 
 int OPTION = 1; 
+int last_OPTION = 0; // Tracks when to clear the screen
 
 bool last_Plus_Button = LOW;
 bool current_Plus_Button = LOW;
@@ -148,7 +149,7 @@ void setup() {
     // Initialize custom symbols
     lcd.createChar(0, degree_Symbol);
     lcd.createChar(1, fan_is_on_Symbol);
-    lcd.createChar(2, water_drop_Symbol); // Water drop symbol initialized
+    lcd.createChar(2, water_drop_Symbol);
 
     if (!rtc.isrunning()) {
         rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
@@ -175,7 +176,7 @@ void loop() {
     bool is_LIGHT_on = false;
     bool is_FAN_on = false;
     bool is_HEATER_on = false;
-    bool isWatering = (digitalRead(PUMP_PIN) == HIGH); // Moved up for LCD display
+    bool isWatering = (digitalRead(PUMP_PIN) == HIGH); 
     
     // --- LIGHT CONTROL ---
     int current_light_val;
@@ -220,7 +221,16 @@ void loop() {
         digitalWrite(HEATER_PIN, is_HEATER_on);
     }
 
-    // --- LCD DISPLAY LOGIC (Matches the scheme) ---
+    // ==========================================
+    //              LCD DISPLAY
+    // ==========================================
+    
+    // Clear screen ONLY when changing menus to prevent ghosting
+    if (OPTION != last_OPTION) {
+        lcd.clear();
+        last_OPTION = OPTION;
+    }
+
     switch (OPTION) {
         case 1:
             // Line 0: 05:25   T: 22.5C° [fan_symb]
@@ -232,9 +242,9 @@ void loop() {
             lcd.setCursor(8, 0);
             lcd.print("T:");
             lcd.setCursor(11, 0);
-            lcd.print(current_temperature, 1); // 1 decimal place to save space
+            lcd.print(current_temperature, 1); // 1 decimal
             lcd.print("C");
-            lcd.write((byte)0); // Degree symbol
+            lcd.write((byte)0); 
             
             lcd.setCursor(15, 0);
             if (is_FAN_on) lcd.write((byte)1); else lcd.print(" ");
@@ -248,21 +258,22 @@ void loop() {
             lcd.print("H:");
             lcd.setCursor(11, 1);
             lcd.print(current_humidity);
-            lcd.print("% ");
+            lcd.print("% "); // Extra space to clear old numbers
             
             lcd.setCursor(15, 1);
             if (isWatering) lcd.write((byte)2); else lcd.print(" ");
             break;
 
         case 2:
-            // Line 0:       MAX t: 25.0°C
+            // Line 0:       MAX t: 25.0C°
             lcd.setCursor(3, 0);
             lcd.print("MAX t: ");
             lcd.print(MAX_temperature, 1);
             lcd.print("C");
             lcd.write((byte)0);
+            lcd.print("   "); // Clear leftover characters
 
-            // Line 1: Opt2  MIN t: 18.0°C
+            // Line 1: Opt2  MIN t: 18.0C°
             lcd.setCursor(0, 1);
             lcd.print("Opt");
             lcd.print(OPTION);
@@ -271,6 +282,7 @@ void loop() {
             lcd.print(MIN_temperature, 1);
             lcd.print("C");
             lcd.write((byte)0);
+            lcd.print("   ");
             break;
             
         case 3:
@@ -279,6 +291,7 @@ void loop() {
             lcd.print("MAX h: ");
             lcd.print(MAX_humidity);
             lcd.print("%");
+            lcd.print("    ");
 
             // Line 1: Opt3  MIN h: 40%
             lcd.setCursor(0, 1);
@@ -288,6 +301,7 @@ void loop() {
             lcd.print("MIN h: ");
             lcd.print(MIN_humidity);
             lcd.print("%");
+            lcd.print("    ");
             break;
     }
 
@@ -322,10 +336,21 @@ void loop() {
         analogWrite(BLUE_pin, 0);
     }
 
-    // --- BUTTON HANDLING ---
-    current_Mode_Button = debounce(last_Mode_Button, Mode_Button_Pin);
-    current_Plus_Button = debounce(last_Plus_Button, Plus_Button_Pin);
+    // ==========================================
+    //              BUTTON HANDLING
+    // ==========================================
+    
+    // MINUS Button (Scroll Down)
+    current_Minus_Button = debounce(last_Minus_Button, Minus_Button_Pin);
+    if (last_Minus_Button == LOW && current_Minus_Button == HIGH) {
+        OPTION--;
+        if (OPTION < MIN_OPTION) {
+            OPTION = MAX_OPTION;
+        }
+    }
 
+    // PLUS Button (Scroll Up)
+    current_Plus_Button = debounce(last_Plus_Button, Plus_Button_Pin);
     if (last_Plus_Button == LOW && current_Plus_Button == HIGH) {
         OPTION++;
         if (OPTION > MAX_OPTION) {
@@ -333,7 +358,18 @@ void loop() {
         }
     }
 
-    last_Mode_Button = current_Mode_Button;
+    // MODE Button (Reset Min/Max Stats)
+    current_Mode_Button = debounce(last_Mode_Button, Mode_Button_Pin);
+    if (last_Mode_Button == LOW && current_Mode_Button == HIGH) {
+        MAX_temperature = -999.0;
+        MIN_temperature = 999.0;
+        MAX_humidity = 0;
+        MIN_humidity = 100;
+        buzz_pic(1, 50); // Small beep to confirm reset
+    }
+
+    // Update button states for the next loop
+    last_Minus_Button = current_Minus_Button;
     last_Plus_Button = current_Plus_Button;
-    last_Minus_Button = current_Minus_Button; 
+    last_Mode_Button = current_Mode_Button;
 }
