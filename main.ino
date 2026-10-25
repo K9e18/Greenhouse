@@ -17,14 +17,11 @@ DateTime now;
 DHT dht(DHT_PIN, DHTTYPE);
 
 int OPTION = 1; 
-int last_OPTION = 0; // Tracks when to clear the screen
+int last_OPTION = 0; 
 
 bool last_Plus_Button = LOW;
-bool current_Plus_Button = LOW;
 bool last_Minus_Button = LOW;
-bool current_Minus_Button = LOW;
 bool last_Mode_Button = LOW;
-bool current_Mode_Button = LOW;
 
 uint32_t PUMP_tmr = 0;            
 bool isWateredToday = false;
@@ -32,18 +29,6 @@ bool isWateredToday = false;
 // ==========================================
 //            HELPER FUNCTIONS
 // ==========================================
-
-bool debounce(bool last, short PIN) {
-    bool current = digitalRead(PIN);
-    if (last != current) {
-        static uint32_t tmr; 
-        if(millis() - tmr >= 5) {
-            current = digitalRead(PIN);
-            tmr = millis();
-        }
-    }
-    return current;
-}
 
 void buzz_pic(int times, int period) {
     static uint32_t buzzer_tmr;
@@ -57,9 +42,7 @@ void buzz_pic(int times, int period) {
 }
 
 void printTwoDigits(int number) {
-    if (number < 10) {
-        lcd.print("0");
-    }
+    if (number < 10) lcd.print("0");
     lcd.print(number);
 }
 
@@ -83,52 +66,44 @@ void update_Max_Min_humidity(int current_humidity) {
 //            RGB ANIMATION FUNCTIONS
 // ==========================================
 
+// Watering animation (Blue flowing)
 void RGB_watering() {
     static short light_option = 1;
     static int32_t light_flash_tmr;
     
-    if (millis() - light_flash_tmr >= light_flash_period) {
+    if (millis() - light_flash_tmr >= 150) { // 150ms transition
         light_flash_tmr = millis();
         light_option++;
-        if (light_option > MAX_light_WATERING_options) light_option = 1;
+        if (light_option > 4) light_option = 1;
     }
     
     switch(light_option) {
-        case 1:  analogWrite(RED_pin, 102); analogWrite(GREEN_pin, 178); analogWrite(BLUE_pin, 255); break;
-        case 2:  analogWrite(RED_pin, 51);  analogWrite(GREEN_pin, 178); analogWrite(BLUE_pin, 255); break;
-        case 3:  analogWrite(RED_pin, 0);   analogWrite(GREEN_pin, 128); analogWrite(BLUE_pin, 255); break;
-        case 4:  analogWrite(RED_pin, 0);   analogWrite(GREEN_pin, 102); analogWrite(BLUE_pin, 204); break;
-        case 5:  analogWrite(RED_pin, 0);   analogWrite(GREEN_pin, 76);  analogWrite(BLUE_pin, 153); break;
-        case 6:  analogWrite(RED_pin, 0);   analogWrite(GREEN_pin, 51);  analogWrite(BLUE_pin, 102); break;
-        case 7:  analogWrite(RED_pin, 0);   analogWrite(GREEN_pin, 25);  analogWrite(BLUE_pin, 51);  break;
-        case 8:  analogWrite(RED_pin, 0);   analogWrite(GREEN_pin, 0);   analogWrite(BLUE_pin, 51);  break;
-        case 9:  analogWrite(RED_pin, 0);   analogWrite(GREEN_pin, 0);   analogWrite(BLUE_pin, 102); break;
-        case 10: analogWrite(RED_pin, 0);   analogWrite(GREEN_pin, 0);   analogWrite(BLUE_pin, 153); break;
-        case 11: analogWrite(RED_pin, 0);   analogWrite(GREEN_pin, 0);   analogWrite(BLUE_pin, 204); break;
-        case 12: analogWrite(RED_pin, 0);   analogWrite(GREEN_pin, 0);   analogWrite(BLUE_pin, 255); break;
-        case 13: analogWrite(RED_pin, 51);  analogWrite(GREEN_pin, 51);  analogWrite(BLUE_pin, 255); break;
-        case 14: analogWrite(RED_pin, 102); analogWrite(GREEN_pin, 102); analogWrite(BLUE_pin, 255); break;
+        case 1: analogWrite(RED_pin, 0);   analogWrite(GREEN_pin, 178); analogWrite(BLUE_pin, 255); break;
+        case 2: analogWrite(RED_pin, 0);   analogWrite(GREEN_pin, 128); analogWrite(BLUE_pin, 255); break;
+        case 3: analogWrite(RED_pin, 0);   analogWrite(GREEN_pin, 76);  analogWrite(BLUE_pin, 204); break;
+        case 4: analogWrite(RED_pin, 0);   analogWrite(GREEN_pin, 25);  analogWrite(BLUE_pin, 153); break;
     }
 }
 
+// Heating animation (Fire effect)
 void RGB_heatering() {
     static short light_option = 1;
     static int32_t light_flash_tmr;
     
-    if (millis() - light_flash_tmr >= light_flash_period) {
+    if (millis() - light_flash_tmr >= 200) { // 200ms transition
         light_flash_tmr = millis();
         light_option++;
-        if (light_option > MAX_light_HEATERING_options) light_option = 1;
+        if (light_option > 7) light_option = 1;
     }
     
     switch(light_option) {
-        case 1: analogWrite(RED_pin, 136); analogWrite(GREEN_pin, 8);  analogWrite(BLUE_pin, 8);  break; 
-        case 2: analogWrite(RED_pin, 170); analogWrite(GREEN_pin, 74); analogWrite(BLUE_pin, 68); break; 
-        case 3: analogWrite(RED_pin, 238); analogWrite(GREEN_pin, 75); analogWrite(BLUE_pin, 43); break; 
-        case 4: analogWrite(RED_pin, 165); analogWrite(GREEN_pin, 42); analogWrite(BLUE_pin, 42); break; 
-        case 5: analogWrite(RED_pin, 128); analogWrite(GREEN_pin, 0);  analogWrite(BLUE_pin, 32); break; 
-        case 6: analogWrite(RED_pin, 110); analogWrite(GREEN_pin, 38); analogWrite(BLUE_pin, 14); break; 
-        case 7: analogWrite(RED_pin, 204); analogWrite(GREEN_pin, 85); analogWrite(BLUE_pin, 0);  break; 
+        case 1: analogWrite(RED_pin, 136); analogWrite(GREEN_pin, 8);  analogWrite(BLUE_pin, 8);  break; // Blood red
+        case 2: analogWrite(RED_pin, 170); analogWrite(GREEN_pin, 74); analogWrite(BLUE_pin, 68); break; // Brick red
+        case 3: analogWrite(RED_pin, 238); analogWrite(GREEN_pin, 75); analogWrite(BLUE_pin, 43); break; // Bright red
+        case 4: analogWrite(RED_pin, 165); analogWrite(GREEN_pin, 42); analogWrite(BLUE_pin, 42); break; // Brown
+        case 5: analogWrite(RED_pin, 128); analogWrite(GREEN_pin, 0);  analogWrite(BLUE_pin, 32); break; // Burgundy
+        case 6: analogWrite(RED_pin, 110); analogWrite(GREEN_pin, 38); analogWrite(BLUE_pin, 14); break; // Burnt umber
+        case 7: analogWrite(RED_pin, 204); analogWrite(GREEN_pin, 85); analogWrite(BLUE_pin, 0);  break; // Burnt orange
     }
 }
 
@@ -146,7 +121,6 @@ void setup() {
         while(1);
     }
 
-    // Initialize custom symbols
     lcd.createChar(0, degree_Symbol);
     lcd.createChar(1, fan_is_on_Symbol);
     lcd.createChar(2, water_drop_Symbol);
@@ -225,83 +199,37 @@ void loop() {
     //              LCD DISPLAY
     // ==========================================
     
-    // Clear screen ONLY when changing menus to prevent ghosting
     if (OPTION != last_OPTION) {
-        lcd.clear();
+        lcd.setCursor(0, 0); lcd.print("                ");
+        lcd.setCursor(0, 1); lcd.print("                ");
         last_OPTION = OPTION;
     }
 
     switch (OPTION) {
         case 1:
-            // Line 0: 05:25   T: 22.5C° [fan_symb]
-            lcd.setCursor(0, 0);
-            printTwoDigits(now.hour());
-            lcd.print(":");
-            printTwoDigits(now.minute()); 
+            lcd.setCursor(0, 0); printTwoDigits(now.hour()); lcd.print(":"); printTwoDigits(now.minute()); 
             
-            lcd.setCursor(8, 0);
-            lcd.print("T:");
-            lcd.setCursor(11, 0);
-            lcd.print(current_temperature, 1); // 1 decimal
-            lcd.print("C");
-            lcd.write((byte)0); 
+            // MOVED TEMPERATURE LEFT TO FREE UP POSITION 15 FOR THE FAN SYMBOL
+            lcd.setCursor(6, 0); lcd.print("T: ");
+            lcd.setCursor(9, 0); lcd.print(current_temperature, 1); lcd.print("C"); lcd.write((byte)0); 
             
-            lcd.setCursor(15, 0);
-            if (is_FAN_on) lcd.write((byte)1); else lcd.print(" ");
+            // Position 15 is now safe for the fan symbol
+            lcd.setCursor(15, 0); if (is_FAN_on) lcd.write((byte)1); else lcd.print(" ");
 
-            // Line 1: Opt1  H: 45%     [water_symb]
-            lcd.setCursor(0, 1);
-            lcd.print("Opt");
-            lcd.print(OPTION);
-            
-            lcd.setCursor(8, 1);
-            lcd.print("H:");
-            lcd.setCursor(11, 1);
-            lcd.print(current_humidity);
-            lcd.print("% "); // Extra space to clear old numbers
-            
-            lcd.setCursor(15, 1);
-            if (isWatering) lcd.write((byte)2); else lcd.print(" ");
+            lcd.setCursor(0, 1); lcd.print("Opt"); lcd.print(OPTION);
+            lcd.setCursor(7, 1); lcd.print("H: ");
+            lcd.setCursor(10, 1); lcd.print(current_humidity); lcd.print("% "); 
+            lcd.setCursor(15, 1); if (isWatering) lcd.write((byte)2); else lcd.print(" ");
             break;
 
         case 2:
-            // Line 0:       MAX t: 25.0C°
-            lcd.setCursor(3, 0);
-            lcd.print("MAX t: ");
-            lcd.print(MAX_temperature, 1);
-            lcd.print("C");
-            lcd.write((byte)0);
-            lcd.print("   "); // Clear leftover characters
-
-            // Line 1: Opt2  MIN t: 18.0C°
-            lcd.setCursor(0, 1);
-            lcd.print("Opt");
-            lcd.print(OPTION);
-            lcd.setCursor(7, 1);
-            lcd.print("MIN t: ");
-            lcd.print(MIN_temperature, 1);
-            lcd.print("C");
-            lcd.write((byte)0);
-            lcd.print("   ");
+            lcd.setCursor(2, 0); lcd.print("MAX: "); lcd.print(MAX_temperature, 1); lcd.print("C"); lcd.write((byte)0); lcd.print("  "); 
+            lcd.setCursor(0, 1); lcd.print("Opt"); lcd.print(OPTION); lcd.setCursor(5, 1); lcd.print("Min: "); lcd.print(MIN_temperature, 1); lcd.print("C"); lcd.write((byte)0);
             break;
             
         case 3:
-            // Line 0:       MAX h: 60%
-            lcd.setCursor(3, 0);
-            lcd.print("MAX h: ");
-            lcd.print(MAX_humidity);
-            lcd.print("%");
-            lcd.print("    ");
-
-            // Line 1: Opt3  MIN h: 40%
-            lcd.setCursor(0, 1);
-            lcd.print("Opt");
-            lcd.print(OPTION);
-            lcd.setCursor(7, 1);
-            lcd.print("MIN h: ");
-            lcd.print(MIN_humidity);
-            lcd.print("%");
-            lcd.print("    ");
+            lcd.setCursor(2, 0); lcd.print("MAX: "); lcd.print(MAX_humidity); lcd.print("%"); lcd.print("   ");
+            lcd.setCursor(0, 1); lcd.print("Opt"); lcd.print(OPTION); lcd.setCursor(5, 1); lcd.print("Min: "); lcd.print(MIN_humidity); lcd.print("%");
             break;
     }
 
@@ -331,46 +259,36 @@ void loop() {
         RGB_heatering();
     } 
     else {
-        analogWrite(RED_pin, 0);
-        analogWrite(GREEN_pin, 0);
-        analogWrite(BLUE_pin, 0);
+        // USING digitalWrite TO FORCE THE PINS TO ABSOLUTE ZERO (Fixes the stuck LED bug)
+        digitalWrite(RED_pin, LOW);
+        digitalWrite(GREEN_pin, LOW);
+        digitalWrite(BLUE_pin, LOW);
     }
 
-    // ==========================================
-    //              BUTTON HANDLING
-    // ==========================================
-    
-    // MINUS Button (Scroll Down)
-    current_Minus_Button = debounce(last_Minus_Button, Minus_Button_Pin);
-    if (last_Minus_Button == LOW && current_Minus_Button == HIGH) {
-        OPTION--;
-        if (OPTION < MIN_OPTION) {
-            OPTION = MAX_OPTION;
+    // --- BUTTON HANDLING ---
+    static uint32_t lastBtnTime = 0;
+    if (millis() - lastBtnTime > 50) { 
+        bool readPlus = digitalRead(Plus_Button_Pin);
+        bool readMinus = digitalRead(Minus_Button_Pin);
+        bool readMode = digitalRead(Mode_Button_Pin);
+
+        if (readPlus == HIGH && last_Plus_Button == LOW) {
+            OPTION++;
+            if (OPTION > MAX_OPTION) OPTION = MIN_OPTION;
         }
-    }
-
-    // PLUS Button (Scroll Up)
-    current_Plus_Button = debounce(last_Plus_Button, Plus_Button_Pin);
-    if (last_Plus_Button == LOW && current_Plus_Button == HIGH) {
-        OPTION++;
-        if (OPTION > MAX_OPTION) {
-            OPTION = MIN_OPTION;
+        if (readMinus == HIGH && last_Minus_Button == LOW) {
+            OPTION--;
+            if (OPTION < MIN_OPTION) OPTION = MAX_OPTION;
         }
-    }
+        if (readMode == HIGH && last_Mode_Button == LOW) {
+            MAX_temperature = -999.0; MIN_temperature = 999.0;
+            MAX_humidity = 0; MIN_humidity = 100;
+            buzz_pic(1, 50); 
+        }
 
-    // MODE Button (Reset Min/Max Stats)
-    current_Mode_Button = debounce(last_Mode_Button, Mode_Button_Pin);
-    if (last_Mode_Button == LOW && current_Mode_Button == HIGH) {
-        MAX_temperature = -999.0;
-        MIN_temperature = 999.0;
-        MAX_humidity = 0;
-        MIN_humidity = 100;
-        buzz_pic(1, 50); // Small beep to confirm reset
+        last_Plus_Button = readPlus;
+        last_Minus_Button = readMinus;
+        last_Mode_Button = readMode;
+        lastBtnTime = millis();
     }
-
-    // Update button states for the next loop
-    last_Minus_Button = current_Minus_Button;
-    last_Plus_Button = current_Plus_Button;
-    last_Mode_Button = current_Mode_Button;
 }
-

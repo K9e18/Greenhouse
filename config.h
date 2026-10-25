@@ -5,10 +5,10 @@
 
 // Lighting system
 #define LIGHT_PANEL_PIN 12
-#define LIGHT_SENSOR_PIN 10
+#define LIGHT_SENSOR_PIN A1
 #define LIGHT_check_period 200
-#define MIN_light_val 500 // you should correct this data by yourself
-#define MAX_light_val 1000 // and this too
+#define MIN_light_val 500 
+#define MAX_light_val 1000 
 
 // cooling system
 #define HEATER_PIN 5
@@ -21,14 +21,13 @@
 #define MIN_OPTION 1
 
 // temperature
-#define tmp_period (1000 * 3) // added parentheses for safety
+#define tmp_period (1000 * 3) 
 #define MIN_plant_temperature 15
 #define MAX_plant_temperature 25
 
-// RGB led
-#define RED_pin A1
-#define GREEN_pin A2
-#define BLUE_pin A3
+#define RED_pin 9
+#define GREEN_pin 10
+#define BLUE_pin 11
 
 // RGB Effects
 #define light_flash_period 100
@@ -38,14 +37,13 @@
 // buttons
 #define Plus_Button_Pin 7
 #define Minus_Button_Pin 8
-#define Mode_Button_Pin 9
+#define Mode_Button_Pin 13 // Moved here to free up Pin 9
 
 // watering settings
 #define PUMP_PIN 6
-#define WATERING_HOUR 14    // ]
-#define WATERING_MIN 0      // ] -> it means that watering will on in 14:00
+#define WATERING_HOUR 14    
+#define WATERING_MIN 0      
 #define WATERING_DURATION 5000 
 
 // buzzer
-#define BUZZER_pin 3
-
+#define BUZZER_pin 2 // Moved here to free up Pin 3
