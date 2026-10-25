@@ -1,6 +1,6 @@
 # Automated Greenhouse Controller
 
-An Arduino-based automated microclimate controller designed for a small greenhouse. The system monitors temperature, humidity, and light levels, and automatically controls watering, ventilation, heating, and lighting. It also features dynamic RGB LED visual animations for different operational states.
+An Arduino-based automated microclimate controller designed for a small greenhouse. The system monitors temperature, humidity, and light levels, and automatically controls watering, ventilation, heating, and lighting. It also features a dynamic, smoothly fading RGB LED visual animation system to indicate the current operational state.
 
 ## 📖 Table of Contents
 - [Introduction](#introduction)
@@ -27,7 +27,7 @@ Modern crop production increasingly relies on automation. Maintaining optimal te
 - Conduct testing.
 - Calculate the cost and compare it with commercial analogues.
 
-**Novelty:** The system is built on an affordable Arduino platform, utilizing a DHT22 sensor, a DS1307 real-time clock, an LCD display, and controlling a pump, fan, heater, and lighting. The project features a unique RGB status indication system with smooth animations (water flow effect for watering, fire flicker effect for heating).
+**Novelty:** The system is built on an affordable Arduino platform, utilizing a DHT22 sensor, a DS1307 real-time clock, an LCD display, and controlling a pump, fan, heater, and lighting. The project features a unique RGB status indication system with smooth PWM animations (a water flow effect for watering, and a fire flicker effect for heating).
 
 ---
 
@@ -46,7 +46,7 @@ Modern crop production increasingly relies on automation. Maintaining optimal te
 | 9 | Heating Element | 1 pc. | Heating |
 | 10 | LED Panel | 1 pc. | Lighting |
 | 11 | Photoresistor | 1 pc. | Light sensor |
-| 12 | RGB LED | 1 pc. | Visual indication |
+| 12 | RGB LED | 1 pc. | Visual indication (PWM) |
 | 13 | Piezoelectric Buzzer | 1 pc. | Sound signal |
 | 14 | Wires & Breadboard | — | Assembly |
 | 15 | Power Supply (5 V, 2 A) | 1 pc. | Power |
@@ -61,22 +61,24 @@ Modern crop production increasingly relies on automation. Maintaining optimal te
 
 ### Pin Configuration
 
+*Optimized for PWM support and conflict-free operation.*
+
 | Device | Arduino Pin | Note |
 |---|---|---|
 | DHT22 | A0 | Temp/Humidity Sensor |
 | RTC DS1307 / LCD I2C | A4 (SDA), A5 (SCL) | I2C bus, LCD address `0x3E` |
-| Button "+" | 7 | Menu control |
-| Button "−" | 8 | Menu control |
-| Button "Mode" | 9 | Menu control |
 | Heater | 5 | Via relay |
 | Fan | 4 | Via relay |
 | Pump | 6 | Via relay |
 | LED Panel | 12 | Via relay |
-| Light Sensor | 10 | Analog input |
-| RGB: Red | A1 | Visual indication |
-| RGB: Green | A2 | Visual indication |
-| RGB: Blue | A3 | Visual indication |
-| Buzzer | 3 | Sound signal |
+| Light Sensor | A1 | Analog input |
+| Button "+" | 7 | Menu control |
+| Button "−" | 8 | Menu control |
+| Button "Mode" | 13 | Reset Max/Min Stats |
+| RGB: Red | 9 | PWM capable |
+| RGB: Green | 10 | PWM capable |
+| RGB: Blue | 11 | PWM capable |
+| Buzzer | 2 | Sound signal |
 
 ---
 
@@ -87,14 +89,13 @@ The firmware is written in C++ and can be compiled using **Platform IO** or the 
 ### Project Structure
 - `main.ino` — Main logic: `setup()`, `loop()`, button handling, relay control, and LCD output.
 - `config.h` — Pin definitions, polling periods, temperature thresholds, and watering schedule.
-- `symbols.h` — Custom LCD characters (degree symbol, fan icon).
+- `symbols.h` — Custom LCD characters (degree symbol, fan icon, water drop icon).
 
 ### Key Functions
-- `debounce()` — Handles button debouncing.
 - `buzz_pic()` — Generates a sound signal.
 - `update_Max_Min_temperature()` / `update_Max_Min_humidity()` — Tracks max/min values.
 - `printTwoDigits()` — Outputs numbers with a leading zero.
-- `RGB_watering()` — Controls the blue water animation during pump operation.
+- `RGB_watering()` — Controls the blue water flow animation during pump operation.
 - `RGB_heatering()` — Controls the fire flicker animation during heating.
 
 ### Algorithm Logic
@@ -109,9 +110,9 @@ The firmware is written in C++ and can be compiled using **Platform IO** or the 
    - At a scheduled time (e.g., 14:00) — the pump turns on for 5 seconds.
    - **RGB Indication:** 
      - When the pump is active, the RGB LED smoothly transitions through shades of blue.
-     - When the heater is active, the RGB LED flickers with fire-like colors (red, orange, brown).
+     - When the heater is active, the RGB LED smoothly flickers with fire-like colors.
    - The LCD displays time, temperature, and humidity.
-   - Buttons switch display modes.
+   - Buttons switch display modes (and the Mode button resets the min/max statistics).
 
 ---
 
@@ -127,12 +128,12 @@ The firmware is written in C++ and can be compiled using **Platform IO** or the 
 | Button Response | Working |
 | LCD Output | Working |
 | Sound Signal | Working |
-| RGB Animations | Working |
+| RGB Animations | Working (Smooth PWM) |
 
 **Notes:**
 - The DHT22 sensor has a delay of about 2 seconds during sharp temperature changes due to sensor inertia. This is acceptable for greenhouse conditions.
 - The system successfully activates the fan during overheating and turns on the light when illumination is insufficient.
-- The RGB LED provides clear, intuitive visual feedback of the system's current state.
+- The RGB LED provides clear, intuitive visual feedback of the system's current state using true analog PWM for smooth color fading.
 
 ---
 
@@ -163,7 +164,7 @@ The cost of the product is 2–10 times lower than commercial analogues with com
 | Ready-made "smart pot" | $50 – $150 | Watering, light |
 | Auto-watering system | $30 – $80 | Watering only |
 | Industrial greenhouse controller | $100 – $300 | Full control |
-| **Our controller** | **~$29.00** | Watering, temperature, humidity, light, RGB indication |
+| **Our controller** | **~$29.00** | Watering, temp, humidity, light, RGB indication |
 
 ---
 
@@ -182,7 +183,7 @@ The cost of the product is 2–10 times lower than commercial analogues with com
 ## Future Enhancements
 
 1. **Light Sensor Calibration:** The `MIN_light_val` is currently approximate. It should be calibrated based on real-world indoor lighting conditions.
-2. **"−" Button Implementation:** The "−" button is currently read but not assigned to a specific action. Implementing it would allow reverse navigation through the menu.
-3. **Settings Menu:** Modes 4 and 5 are reserved in the code for future manual control or threshold adjustments.
-4. **Hardware Protection:** For long-term use, adding 10kΩ pull-up resistors to the button pins is recommended.
-5. **Hardware PWM Note:** Pins A1, A2, A3 on Arduino Uno do not support PWM. For smooth RGB color transitions in a real physical build, these should be moved to PWM-capable pins (e.g., 3, 5, 6, 9, 10, 11).
+2. **Wi-Fi Module:** Add an ESP8266 or ESP32 to enable remote monitoring and smartphone control.
+3. **Soil Moisture Sensor:** Add a sensor to measure actual soil water content for even more precise watering.
+4. **Hardware Protection:** For long-term physical use, adding 10kΩ pull-up resistors to the button pins and designing a custom PCB is recommended.
+5. **Custom Enclosure:** 3D print a custom case to house the LCD, buttons, and relays for a professional, finished look.
