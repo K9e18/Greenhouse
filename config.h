@@ -30,10 +30,10 @@
 #define GREEN_pin A2
 #define BLUE_pin A3
 
+// RGB Effects
 #define light_flash_period 100
-
-// RGB led flash in watering mode
 #define MAX_light_WATERING_options 14
+#define MAX_light_HEATERING_options 7
 
 // buttons
 #define Plus_Button_Pin 7
